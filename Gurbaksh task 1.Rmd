@@ -1,0 +1,84 @@
+---
+title: "Data Science and Business Analytics Internship"
+Author: Gurbaksh Kaur Sethi
+output:
+  pdf_document: default
+  html_notebook: default
+---
+Task 1: Prediction using Supervised ML
+
+1) Predict the percentage of the student based on the no. of hours studied
+2) What will be the predicted score if a student studies for 9.25 hours/day
+
+```{r}
+# Importing the packages required
+library("caret")
+library("caTools")
+library(ggplot2)
+library(dplyr)
+```
+```{r}
+# Reading the data
+setwd(choose.dir("internship"))
+s_data=read.csv("student_scores.csv")
+head(s_data)
+```
+
+```{r}
+# Plotting the distribution of scores
+ggplot(data=s_data,aes(x=Hours,y=Scores,color="orange"))+ geom_point() +labs(title = "Hours vs Scores")
+
+```
+
+```{r}
+# Preparing the data
+set.seed(2)
+split=sample.split(s_data$Scores,SplitRatio = 0.8)
+train=subset(s_data,split== TRUE)
+test=subset(s_data,split== FALSE)
+train
+```
+```{r}
+test
+```
+
+```{r}
+# Training the algorithm
+model=lm(Scores~ Hours, data = train)
+summary(model)
+```
+
+```{r}
+# Plotting the regression line
+ggplot(data=train,aes(x=Hours, y=Scores)) + geom_point()+ geom_smooth(method = "lm")+ theme(panel.background = element_rect(fill = "white"),
+                                                                          axis.line.x=element_line(),
+                                                                          axis.line.y=element_line()) +
+  ggtitle("Linear Model Fitted to Data")
+```
+
+```{r}
+# Making Predictions
+pred=predict(model,test)
+pred
+
+```
+
+```{r}
+# Comparing Actual vs Predicted
+df=data.frame("Actual"=test$Scores,"Predicted"=pred)
+df
+```
+
+```{r}
+# You can also test with your own data
+h=9.25
+own_pred=predict(model, data.frame(Hours=h))
+paste0("No. of hours= ", h)
+paste0("Predicted score= ",own_pred)
+```
+
+```{r}
+# Evaluating the model
+error=RMSE(test$Scores,pred)
+paste0("Root mean square error= ", error)
+```
